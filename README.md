@@ -21,7 +21,8 @@
 5.2 然后修改char *train_images为第4步生成的train.txt路径，修改char *backup_directory为模型保存路径  
 
 6. 第5步没有改变类别数，仅修改某类的名称，也可以修改类别数（待验证）  
-参考https://blog.csdn.net/sinat_30071459/article/details/53100791和https://docs.khadas.com/zh-cn/vim3/HowToTrainYolo.html  
+参考https://blog.csdn.net/sinat_30071459/article/details/53100791  
+    https://docs.khadas.com/zh-cn/vim3/HowToTrainYolo.html  
 
 7. python train.sh开始训练  
 
