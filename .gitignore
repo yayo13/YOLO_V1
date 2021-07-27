@@ -1,3 +1,7 @@
 *.weights
 .vscode/
+backup/
+data/
+log/
+VOCdevkit/
 .DS_Store*
