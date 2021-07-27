@@ -1,0 +1,9 @@
+%YAML:1.0
+---
+RUN_MODE: "detect" 
+DETECT_THRESHOLD: 0.2
+NMS_VALUE: 0.4 
+NET_CFG: "/Users/mayuan/Desktop/darknet_lib/param/yolo-small.cfg"
+NET_WEIGHT: "/Users/mayuan/Desktop/darknet_lib/param/yolo-small_130.weights"
+FILE_CLASS: "/Users/mayuan/Desktop/darknet_lib/param/class.name"
+FILE_IMAGES: "/Users/mayuan/Desktop/darknet_lib/param/imgfile.list"
