@@ -56,8 +56,7 @@ network *load_network(char *cfg, char *weights, int clear)
     if(weights && weights[0] != 0){
         load_weights(net, weights);
     }
-    //if(clear) (*net->seen) = 0;
-    (*net->seen) = 0;
+    if(clear) (*net->seen) = 0;
     return net;
 }
 

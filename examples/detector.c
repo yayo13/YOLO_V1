@@ -5,9 +5,11 @@ static int coco_ids[] = {1,2,3,4,5,6,7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,2
 
 void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, int ngpus, int clear)
 {
-    list *options = read_data_cfg(datacfg);
-    char *train_images = option_find_str(options, "train", "data/train.list");
-    char *backup_directory = option_find_str(options, "backup", "/backup/");
+    // list *options = read_data_cfg(datacfg);
+    // char *train_images = option_find_str(options, "train", "data/train.list");
+    // char *backup_directory = option_find_str(options, "backup", "/backup/");
+    char *train_images = "/media/yuan/文档/PROJECTS/CGS/1-AGV/DETOCTOR/YOLO_V1/train.txt";
+    char *backup_directory = "/media/yuan/文档/PROJECTS/CGS/1-AGV/DETOCTOR/YOLO_V1/backup";
 
     srand(time(0));
     char *base = basecfg(cfgfile);
@@ -135,7 +137,8 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
             sprintf(buff, "%s/%s.backup", backup_directory, base);
             save_weights(net, buff);
         }
-        if(i%10000==0 || (i < 1000 && i%100 == 0)){
+        // if(i%10000==0 || (i < 1000 && i%100 == 0)){
+        if(i%20){
 #ifdef GPU
             if(ngpus != 1) sync_nets(nets, ngpus, 0);
 #endif
