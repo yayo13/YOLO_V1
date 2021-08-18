@@ -33,7 +33,9 @@ private:
     bool load_cls_info(const char* cls_def);
     void load_images_from_file(const char* list_file);
     image mat_to_image(const cv::Mat& cv_img);
-    void generate_results(int lay_num, const detection* dets, const cv::Size& imsz, std::vector<NET_RESULT>& res);
+    cv::Mat letterbox_resize(const cv::Mat& cv_img, const cv::Size& dstsz, cv::Rect2f& rate_shift);
+    void generate_results(int lay_num, const detection* dets, const cv::Rect2f& rate_shift, 
+                                  const cv::Size& imsz, std::vector<NET_RESULT>& res);
     cv::Mat draw_results(const cv::Mat image, const std::vector<NET_RESULT>& res);
 };
 

@@ -113,12 +113,49 @@ image lib_darknet::mat_to_image(const cv::Mat& cv_img){
     return im;
 }
 
+cv::Mat lib_darknet::letterbox_resize(const cv::Mat& cv_img, const cv::Size& dstsz, cv::Rect2f& rate_shift){
+    cv::Size shrink_sz;
+    rate_shift.x = dstsz.width/float(cv_img.cols);
+    rate_shift.y = dstsz.height/float(cv_img.rows);
+    if(rate_shift.x < rate_shift.y){
+        shrink_sz.width  = dstsz.width;
+        shrink_sz.height = int(cv_img.rows*rate_shift.x);
+    }
+    else{
+        shrink_sz.height = dstsz.height;
+        shrink_sz.width  = int(cv_img.cols*rate_shift.y);
+    }
+    rate_shift.x = float(cv_img.cols)/shrink_sz.width;
+    rate_shift.y = float(cv_img.rows)/shrink_sz.height;
+
+    cv::Mat resized;
+    cv::resize(cv_img, resized, shrink_sz);
+    rate_shift.height = int((dstsz.height-shrink_sz.height)/2);
+    rate_shift.width  = int((dstsz.width-shrink_sz.width)/2);
+    cv::copyMakeBorder(resized, resized, rate_shift.height, rate_shift.height, rate_shift.width, rate_shift.width, 
+                       cv::BORDER_CONSTANT, cv::Scalar::all(127));
+
+    rate_shift.height *= rate_shift.y;
+    rate_shift.width  *= rate_shift.x;
+    rate_shift.x      *= dstsz.width;
+    rate_shift.y      *= dstsz.height;
+
+    return resized;
+}
+
 void lib_darknet::detect(const cv::Mat& cv_img, std::vector<NET_RESULT>& res){
     res.clear();
     if(cv_img.empty()) return;
 
     cv::Mat cv_img_;
+    cv::Rect2f rsz_rate(cv_img.cols,cv_img.rows,0,0);
+#if 1
     cv::resize(cv_img, cv_img_, cv::Size(net->w, net->h));
+#else
+    // letterbox seems better
+    cv_img_ = letterbox_resize(cv_img, cv::Size(net->w, net->h), rsz_rate);
+#endif
+
     image im = mat_to_image(cv_img_);
 
     network_predict(net, im.data);
@@ -128,9 +165,15 @@ void lib_darknet::detect(const cv::Mat& cv_img, std::vector<NET_RESULT>& res){
     int num_out = l.side*l.side*l.n;
     // AINFO << "l.side = " << l.side << ", l.n = " << l.n << ", num = " << num_out << std::endl;
     detection* dets = get_network_boxes(net, 1, 1, threshold, 0, 0, 0, &nboxes);
-    if(nms_value) do_nms_sort(dets, num_out, l.classes, nms_value);
+    // detection* dets = get_network_boxes(net, im.w, im.h, threshold, 0.5, 0, 1, &nboxes);
+    // AINFO << "nboxs: " << nboxes << std::endl;
 
-    generate_results(num_out, dets, cv_img.size(), res);
+    // for yolov1 num_out>0
+    // for yolov3 num_out=0
+    if(num_out == 0) num_out = nboxes;
+
+    if(nms_value) do_nms_sort(dets, num_out, l.classes, nms_value);
+    generate_results(num_out, dets, rsz_rate, cv_img.size(), res);
 
     free_detections(dets, nboxes);
     free_image(im);
@@ -165,7 +208,8 @@ void lib_darknet::detect_batch(bool save_file){
     }
 }
 
-void lib_darknet::generate_results(int lay_num, const detection* dets, const cv::Size& imsz, std::vector<NET_RESULT>& res){
+void lib_darknet::generate_results(int lay_num, const detection* dets, const cv::Rect2f& rate_shift, 
+                                  const cv::Size& imsz, std::vector<NET_RESULT>& res){
     res.clear();
     
     int classes = class_name.size();
@@ -179,8 +223,8 @@ void lib_darknet::generate_results(int lay_num, const detection* dets, const cv:
 
                 box b = dets[i].bbox;
                 // AINFO << "box: " << b.x << " " << b.y << " " << b.w << " " << b.h << std::endl;
-                cv::Rect rect(int((b.x-b.w/2.0)*imsz.width), int((b.y-b.h/2.0)*imsz.height),
-                             int(b.w*imsz.width), int(b.h*imsz.height));
+                cv::Rect rect(int((b.x-b.w/2.0)*rate_shift.x-rate_shift.width), int((b.y-b.h/2.0)*rate_shift.y-rate_shift.height),
+                             int(b.w*rate_shift.x), int(b.h*rate_shift.y));
                 rect.x = MAX(0, rect.x);
                 rect.y = MAX(0, rect.y);
                 rect.width  = MIN(imsz.width-rect.x, rect.width);
