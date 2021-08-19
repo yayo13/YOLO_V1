@@ -5,13 +5,13 @@ char *voc_names[] = {"agv", "bicycle", "bird", "boat", "bottle", "bus", "car", "
 
 void train_yolo(char *cfgfile, char *weightfile)
 {
-    char *train_images = "/Users/mayuan/Desktop/darknet/train.txt";
-    char *backup_directory = "/Users/mayuan/Desktop/darknet/backup";
+    char *train_images = "/media/yuan/文档/PROJECTS/CGS/1-AGV/DETOCTOR/YOLO_V1/train.txt";
+    char *backup_directory = "/media/yuan/文档/PROJECTS/CGS/1-AGV/DETOCTOR/YOLO_V1/backup";
     srand(time(0));
     char *base = basecfg(cfgfile);
     printf("%s\n", base);
     float avg_loss = -1;
-    network *net = load_network(cfgfile, weightfile, 1);
+    network *net = load_network(cfgfile, weightfile, 0);
     printf("Learning Rate: %g, Momentum: %g, Decay: %g\n", net->learning_rate, net->momentum, net->decay);
     int imgs = net->batch*net->subdivisions;
     int i = *net->seen/imgs;
@@ -297,6 +297,7 @@ void test_yolo(char *cfgfile, char *weightfile, char *filename, float thresh)
         if (nms) do_nms_sort(dets, l.side*l.side*l.n, l.classes, nms);
 
         draw_detections(im, dets, l.side*l.side*l.n, thresh, voc_names, alphabet, 20);
+        // draw_detections(im, dets, l.side*l.side*l.n, thresh, voc_names, alphabet, 5);
         save_image(im, "predictions");
         show_image(im, "predictions", 0);
         free_detections(dets, nboxes);

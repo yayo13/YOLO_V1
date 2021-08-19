@@ -244,6 +244,7 @@ void draw_detections(image im, detection *dets, int num, float thresh, char **na
         char labelstr[4096] = {0};
         int class = -1;
         for(j = 0; j < classes; ++j){
+            printf("dets[i].prob[j] = %.4f\n", dets[i].prob[j]);
             if (dets[i].prob[j] > thresh){
                 if (class < 0) {
                     strcat(labelstr, names[j]);

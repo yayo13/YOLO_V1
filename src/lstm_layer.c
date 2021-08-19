@@ -28,7 +28,7 @@ static void increment_layer(layer *l, int steps)
 
 layer make_lstm_layer(int batch, int inputs, int outputs, int steps, int batch_normalize, int adam)
 {
-    fprintf(stderr, "LSTM Layer: %d inputs, %d outputs\n", inputs, outputs);
+    // fprintf(stderr, "LSTM Layer: %d inputs, %d outputs\n", inputs, outputs);
     batch = batch / steps;
     layer l = { 0 };
     l.batch = batch;
